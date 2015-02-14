@@ -1,0 +1,168 @@
+<?php
+/**
+ * Pages2JSON
+ *
+ * Copyright:
+ *
+ * IDT Media - Goran Ilic & Tapio Löytty
+ * Web: www.i-do-this.com
+ * Email: hi@i-do-this.com
+ *
+ *
+ * Authors:
+ *
+ * Goran Ilic, <ja@ich-mach-das.at>
+ * Web: www.ich-mach-das.at
+ * 
+ * Tapio Löytty, <tapsa@orange-media.fi>
+ * Web: www.orange-media.fi
+ *
+ * 
+ * ProcessWire 2.x 
+ * Copyright (C) 2014 by Ryan Cramer 
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * 
+ * http://processwire.com
+ *
+ */
+
+class Pages2JSON extends WireData implements Module, ConfigurableModule 
+{
+	#---------------------
+	# Attributes
+	#---------------------	
+
+	static protected $static_fields = array(
+		'id', 
+		'name', 
+		'url',
+		'httpUrl',
+		'template', 
+		'parent', 
+		'parent_id', 
+		'created', 
+		'modified', 
+		'created_users_id', 
+		'modified_users_id',
+		'status'
+	);
+
+	#---------------------
+	# Module init
+	#---------------------	
+	
+	public function init() 
+	{
+		$this->addHook('Page::toJSON', $this, 'renderJSON');
+		$this->addHook('PageArray::toJSON', $this, 'renderJSON');
+	}
+	
+	#---------------------
+	# Interface methods
+	#---------------------		
+	
+	public static function getModuleInfo() 
+	{
+		return array(
+			'title' => 'Pages to JSON', 
+			'author' => 'IDT Media',
+			'version' => 001, 
+			'summary' => 'Adds method to several wire classes to output as JSON',
+			'singular' => true, 
+			'autoload' => true
+		);
+	}	
+
+	static public function getModuleConfigInputfields(array $data) 
+	{
+		$modules = wire('modules');
+		$inputfields = new InputfieldWrapper();
+
+		$displayFields = $modules->get('InputfieldAsmSelect'); 
+		$displayFields->name = 'fields';
+		$displayFields->label = 'Fields that will be included in results';
+		
+		foreach(self::$static_fields as $name) 
+			if(!ctype_digit("$name")) $displayFields->addOption($name); 
+
+		foreach(wire('fields') as $field) {
+		
+			if($field->type instanceof FieldtypeFieldsetOpen || $field->type instanceof FieldtypePassword) continue; 
+			$displayFields->addOption($field->name); 
+		}	
+
+		$displayFields->value = $data['fields'];
+		
+		$inputfields->add($displayFields); 
+
+		return $inputfields;
+	}	
+	
+	#---------------------
+	# Hooks
+	#---------------------		
+	
+	protected function renderJSON($event)
+	{
+		$event->return = json_encode( $this->getValue( $event->object ) );
+	}	
+
+	#---------------------
+	# Helpers
+	#---------------------	
+
+	protected function getValue($value)
+	{
+		return self::isHooked('Pages2JSON::getValue()') ? $this->__call('getValue', array($value)) : $this->___getValue($value);
+	}	
+	
+	protected function ___getValue($value)
+	{
+		if(!is_object($value))
+			return $value;
+	
+		switch($value->className) {
+		
+			case 'Page':
+				return $this->toPage($value);
+
+			case 'Pageimage':
+			case 'Pagefile':
+				return $value->url;
+				
+			case 'Pagefiles':
+			case 'Pageimages':
+			case 'PageArray':
+			case 'WireArray':
+				return $this->toArray($value);
+		}	
+	
+		return null;
+	}
+	
+	protected function toPage(Page $page)
+	{
+		$obj = new stdClass();
+
+		foreach($this->fields as $field) {
+		
+			$value = $this->getValue($page->$field);
+			
+			if(!is_null($value))
+				$obj->$field = $value;
+		}		
+		
+		return $obj;
+	}
+	
+	protected function toArray(WireArray $array)
+	{
+		$out = array();
+		foreach($array as $item) {
+
+			$out[] = $this->getValue($item);
+		}				
+	
+		return $out;
+	}
+}
