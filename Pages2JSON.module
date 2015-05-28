@@ -57,16 +57,25 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		$this->addHook('PageArray::toJSON', $this, 'renderJSON');
 	}
 	
+	public function ready() 
+	{
+		if($this->page->process == 'ProcessTemplate') {
+			
+			$this->addHookAfter('ProcessTemplate::buildEditForm', $this, 'appendJSONTab');		
+			$this->addHookBefore('ProcessTemplate::executeSave', $this, 'JSONTabActions');	
+		}
+	}	
+	
 	#---------------------
 	# Interface methods
 	#---------------------		
 	
-	public static function getModuleInfo() 
+	static public function getModuleInfo() 
 	{
 		return array(
 			'title' => 'Pages to JSON', 
 			'author' => 'IDT Media',
-			'version' => 001, 
+			'version' => 002, 
 			'summary' => 'Adds method to several wire classes to output as JSON',
 			'singular' => true, 
 			'autoload' => true
@@ -107,6 +116,53 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		$event->return = json_encode( $this->getValue( $event->object ) );
 	}	
 
+	protected function appendJSONTab($event)
+	{
+		$template = $event->arguments(0);
+
+		if($template->flags & Template::flagSystem) 
+			return;
+		
+		$t = new InputfieldWrapper();
+		$t->attr('title', $this->_x('JSON Data', 'tab'));
+		$t->attr('class', 'WireTab'); 
+		
+		$f = wire('modules')->get('InputfieldAsmSelect'); 
+		$f->name = 'json_fields';
+		$f->label = 'Fields that will be included in results for this template';
+		
+		foreach(self::$static_fields as $name) 
+			if(!ctype_digit("$name")) $f->addOption($name); 
+
+		foreach(wire('fields') as $field) {
+		
+			if($field->type instanceof FieldtypeFieldsetOpen || $field->type instanceof FieldtypePassword) continue; 
+			$f->addOption($field->name); 
+		}	
+
+		$f->value = $template->jsonFields;		
+		$t->add($f);
+	
+		$form = $event->return;		
+		$form->insertBefore($t, $form->get('id')); 	
+	}	
+	
+	protected function JSONTabActions($event)
+	{
+		$id = -1;
+		if(isset($_POST['id'])) {
+			$id = (int)$_POST['id']; 
+		} else {
+			$id = isset($_GET['id']) ? (int)$_GET['id'] : 0; 
+		}
+
+		$template = $this->templates->get($id); 
+		if(!$template) throw new WireException("Unknown template"); 
+
+		$var = $this->input->post('json_fields');			
+		$template->set('jsonFields', $var);
+	}		
+	
 	#---------------------
 	# Helpers
 	#---------------------	
@@ -128,7 +184,8 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 
 			case 'Pageimage':
 			case 'Pagefile':
-				return $value->url;
+				return array("url" => $value->url, "description" => $value->description);
+				// return $value->url;
 				
 			case 'Pagefiles':
 			case 'Pageimages':
@@ -143,8 +200,9 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	protected function toPage(Page $page)
 	{
 		$obj = new stdClass();
+		$fields = array_merge((array)$this->fields, (array)$page->template->jsonFields);
 
-		foreach($this->fields as $field) {
+		foreach($fields as $field) {
 		
 			$value = $this->getValue($page->$field);
 			
