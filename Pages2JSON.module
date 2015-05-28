@@ -134,7 +134,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		foreach(self::$static_fields as $name) 
 			if(!ctype_digit("$name")) $f->addOption($name); 
 
-		foreach(wire('fields') as $field) {
+		foreach($template->fields as $field) {
 		
 			if($field->type instanceof FieldtypeFieldsetOpen || $field->type instanceof FieldtypePassword) continue; 
 			$f->addOption($field->name); 
