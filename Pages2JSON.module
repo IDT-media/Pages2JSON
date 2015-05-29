@@ -149,16 +149,14 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	
 	protected function JSONTabActions($event)
 	{
-		$id = -1;
-		if(isset($_POST['id'])) {
-			$id = (int)$_POST['id']; 
-		} else {
-			$id = isset($_GET['id']) ? (int)$_GET['id'] : 0; 
-		}
+		// Grab current tempalte id
+		$id = $this->input->id ? $this->input->id : -1;
 
+		// Load template or fatal
 		$template = $this->templates->get($id); 
 		if(!$template) throw new WireException("Unknown template"); 
 
+		// Set data
 		$var = $this->input->post('json_fields');			
 		$template->set('jsonFields', $var);
 	}		
