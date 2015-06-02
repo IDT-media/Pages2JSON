@@ -75,7 +75,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		return array(
 			'title' => 'Pages to JSON', 
 			'author' => 'IDT Media',
-			'version' => 002, 
+			'version' => 003, 
 			'summary' => 'Adds method to several wire classes to output as JSON',
 			'singular' => true, 
 			'autoload' => true
@@ -100,7 +100,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			$displayFields->addOption($field->name); 
 		}	
 
-		$displayFields->value = $data['fields'];
+		$displayFields->value = isset($data['fields']) ? $data['fields'] : array();
 		
 		$inputfields->add($displayFields); 
 
