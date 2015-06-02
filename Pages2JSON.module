@@ -88,7 +88,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		$inputfields = new InputfieldWrapper();
 
 		$displayFields = $modules->get('InputfieldAsmSelect'); 
-		$displayFields->name = 'fields';
+		$displayFields->name = 'globalFields';
 		$displayFields->label = 'Fields that will be included in results';
 		
 		foreach(self::$static_fields as $name) 
@@ -100,7 +100,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			$displayFields->addOption($field->name); 
 		}	
 
-		$displayFields->value = isset($data['fields']) ? $data['fields'] : array();
+		$displayFields->value = isset($data['globalFields']) ? $data['globalFields'] : array();
 		
 		$inputfields->add($displayFields); 
 
@@ -198,7 +198,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	protected function toPage(Page $page)
 	{
 		$obj = new stdClass();
-		$fields = array_merge((array)$this->fields, (array)$page->template->jsonFields);
+		$fields = array_merge((array)$this->globalFields, (array)$page->template->jsonFields);
 
 		foreach($fields as $field) {
 		
