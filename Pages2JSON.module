@@ -201,6 +201,9 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			case 'PageArray':
 			case 'WireArray':
 				return $this->toArray($value);
+				
+			case 'MapMarker':
+				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);				
 		}	
 	
 		return null;
