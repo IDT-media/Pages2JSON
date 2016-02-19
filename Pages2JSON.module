@@ -54,7 +54,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	public function init() 
 	{
 		$this->addHook('Page::toJSON', $this, 'renderJSON');
-		$this->addHook('PageArray::toJSON', $this, 'renderJSON');
+		$this->addHook('WireArray::toJSON', $this, 'renderJSON');
 	}
 	
 	public function ready() 
@@ -108,12 +108,24 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	}	
 	
 	#---------------------
+	# Methods
+	#---------------------		
+	
+	// PHP 5.4 friendly - parameter depth was added in PHP 5.5
+	public function encode($value, $options = 0) 
+	{
+		return json_encode($this->getValue($value), $options);
+	}
+	
+	#---------------------
 	# Hooks
 	#---------------------		
 	
 	protected function renderJSON($event)
 	{
-		$event->return = json_encode( $this->getValue( $event->object ) );
+		$options = $event->arguments(0) ? $event->arguments(0) : 0;
+		
+		$event->return = $this->encode($event->object, $options);
 	}	
 
 	protected function appendJSONTab($event)
@@ -183,7 +195,6 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			case 'Pageimage':
 			case 'Pagefile':
 				return array("url" => $value->url, "description" => $value->description);
-				// return $value->url;
 				
 			case 'Pagefiles':
 			case 'Pageimages':
