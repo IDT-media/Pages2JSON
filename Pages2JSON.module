@@ -186,6 +186,9 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	{
 		if(!is_object($value))
 			return $value;
+		
+		if($value instanceof stdClass)
+			return $value;
 	
 		switch($value->className) {
 		
