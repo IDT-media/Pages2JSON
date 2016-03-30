@@ -184,12 +184,15 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	
 	protected function ___getValue($value)
 	{
+		// Handle everything that is not object as plain value
 		if(!is_object($value))
 			return $value;
 		
+		// Object is stdClass, we don't need exceptions
 		if($value instanceof stdClass)
 			return $value;
 	
+		// Handle processwire internals
 		switch($value->className) {
 		
 			case 'Page':
@@ -209,6 +212,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);				
 		}	
 	
+		// Unknown type :(
 		return null;
 	}
 	
