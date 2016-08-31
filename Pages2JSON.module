@@ -196,6 +196,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		switch($value->className) {
 		
 			case 'Page':
+			case 'User':
 				return $this->toPage($value);
 
 			case 'Pageimage':
