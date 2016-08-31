@@ -134,14 +134,13 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 
 		if($template->flags & Template::flagSystem) 
 			return;
-		
-		$t = new InputfieldWrapper();
-		$t->attr('title', $this->_x('JSON Data', 'tab'));
-		$t->attr('class', 'WireTab'); 
-		
+
 		$f = wire('modules')->get('InputfieldAsmSelect'); 
-		$f->name = 'json_fields';
-		$f->label = 'Fields that will be included in results for this template';
+		$f->name = 'json_fields';		
+		$f->icon = 'cogs';
+		$f->label = $this->_x('JSON Fields', 'field-label');
+		$f->description = $this->_('Fields that will be included in results for this template.');
+		$f->collapsed = Inputfield::collapsedBlank;		
 		
 		foreach(self::$static_fields as $name) 
 			if(!ctype_digit("$name")) $f->addOption($name); 
@@ -153,10 +152,11 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		}	
 
 		$f->value = $template->jsonFields;		
-		$t->add($f);
-	
-		$form = $event->return;		
-		$form->insertBefore($t, $form->get('id')); 	
+
+		$form = $event->return;	
+		
+		$t = $form->children->first(); // Basics tab
+		$t->add($f);	
 	}	
 	
 	protected function JSONTabActions($event)
