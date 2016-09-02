@@ -177,6 +177,16 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	# Helpers
 	#---------------------	
 
+	protected function getFields($page)
+	{
+		return self::isHooked('Pages2JSON::getFields()') ? $this->__call('getFields', array($page)) : $this->___getFields();
+	}	
+		
+	protected function ___getFields($page)
+	{
+		return (array)$this->globalFields;
+	}
+	
 	protected function getValue($value)
 	{
 		return self::isHooked('Pages2JSON::getValue()') ? $this->__call('getValue', array($value)) : $this->___getValue($value);
@@ -220,7 +230,8 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	protected function toPage(Page $page)
 	{
 		$obj = new stdClass();
-		$fields = array_merge((array)$this->globalFields, (array)$page->template->jsonFields);
+		$fields = $this->getFields($page);
+		$fields = array_merge($fields, (array)$page->template->jsonFields);
 
 		foreach($fields as $field) {
 		
