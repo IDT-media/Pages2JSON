@@ -204,24 +204,22 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	
 		// Handle processwire internals
 		switch($value->className) {
-		
-			case 'Page':
-			case 'User':
-				return $this->toPage($value);
 
 			case 'Pageimage':
 			case 'Pagefile':
 				return array("url" => $value->url, "description" => $value->description);
-				
-			case 'Pagefiles':
-			case 'Pageimages':
-			case 'PageArray':
-			case 'WireArray':
-				return $this->toArray($value);
-				
+		
 			case 'MapMarker':
 				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);				
 		}	
+	
+		// Handle type of Page
+		if($value instanceof Page)
+			return $this->toPage($value);
+		
+		// Handle type of WireArray
+		if($value instanceof WireArray)
+			return $this->toArray($value);
 	
 		// Unknown type :(
 		return null;
