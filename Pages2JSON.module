@@ -75,7 +75,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		return array(
 			'title' => 'Pages to JSON', 
 			'author' => 'IDT Media',
-			'version' => 003, 
+			'version' => 004, 
 			'summary' => 'Adds method to several wire classes to output as JSON',
 			'singular' => true, 
 			'autoload' => true
