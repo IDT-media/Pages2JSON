@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 /**
  * Pages2JSON
  *
@@ -64,7 +64,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			$this->addHookAfter('ProcessTemplate::buildEditForm', $this, 'appendJSONTab');		
 			$this->addHookBefore('ProcessTemplate::executeSave', $this, 'JSONTabActions');	
 		}
-	}	
+	}
 	
 	#---------------------
 	# Interface methods
@@ -109,7 +109,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	
 	#---------------------
 	# Methods
-	#---------------------		
+	#---------------------
 	
 	// PHP 5.4 friendly - parameter depth was added in PHP 5.5
 	public function encode($value, $options = 0) 
@@ -119,7 +119,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	
 	#---------------------
 	# Hooks
-	#---------------------		
+	#---------------------
 	
 	protected function renderJSON($event)
 	{
@@ -136,14 +136,14 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			return;
 
 		$f = wire('modules')->get('InputfieldAsmSelect'); 
-		$f->name = 'json_fields';		
+		$f->name = 'json_fields';
 		$f->icon = 'cogs';
 		$f->label = $this->_x('JSON Fields', 'field-label');
 		$f->description = $this->_('Fields that will be included in results for this template.');
-		$f->collapsed = Inputfield::collapsedBlank;		
+		$f->collapsed = Inputfield::collapsedBlank;
 		
-		foreach(self::$static_fields as $name) 
-			if(!ctype_digit("$name")) $f->addOption($name); 
+		foreach(self::$static_fields as $name)
+			if(!ctype_digit("$name")) $f->addOption($name);
 
 		foreach($template->fields as $field) {
 		
@@ -151,9 +151,9 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			$f->addOption($field->name); 
 		}	
 
-		$f->value = $template->jsonFields;		
+		$f->value = $template->jsonFields;
 
-		$form = $event->return;	
+		$form = $event->return;
 		
 		$t = $form->children->first(); // Basics tab
 		$t->add($f);	
@@ -169,7 +169,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		if(!$template) throw new WireException("Unknown template"); 
 
 		// Set data
-		$var = $this->input->post('json_fields');			
+		$var = $this->input->post('json_fields');
 		$template->set('jsonFields', $var);
 	}		
 	
@@ -179,8 +179,8 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 
 	protected function getFields($page)
 	{
-		return self::isHooked('Pages2JSON::getFields()') ? $this->__call('getFields', array($page)) : $this->___getFields();
-	}	
+		return self::isHooked('Pages2JSON::getFields()') ? $this->__call('getFields', array($page)) : $this->___getFields($page);
+	}
 		
 	protected function ___getFields($page)
 	{
@@ -190,7 +190,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	protected function getValue($value)
 	{
 		return self::isHooked('Pages2JSON::getValue()') ? $this->__call('getValue', array($value)) : $this->___getValue($value);
-	}	
+	}
 	
 	protected function ___getValue($value)
 	{
@@ -199,7 +199,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			return $value;
 		
 		// Object is stdClass, we don't need exceptions
-		if($value instanceof stdClass)
+		if($value instanceof \stdClass)
 			return $value;
 	
 		// Handle processwire internals
@@ -210,7 +210,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 				return array("url" => $value->url, "description" => $value->description);
 		
 			case 'MapMarker':
-				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);				
+				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);
 		}	
 	
 		// Handle type of Page
@@ -227,7 +227,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	
 	protected function toPage(Page $page)
 	{
-		$obj = new stdClass();
+		$obj = new \stdClass;
 		$fields = $this->getFields($page);
 		$fields = array_merge($fields, (array)$page->template->jsonFields);
 
@@ -237,7 +237,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			
 			if(!is_null($value))
 				$obj->$field = $value;
-		}		
+		}
 		
 		return $obj;
 	}
@@ -248,7 +248,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		foreach($array as $item) {
 
 			$out[] = $this->getValue($item);
-		}				
+		}
 	
 		return $out;
 	}
