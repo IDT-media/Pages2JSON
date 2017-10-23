@@ -224,9 +224,12 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		// Unknown type :(
 		return null;
 	}
-	
+
 	protected function toPage(Page $page)
 	{
+		$of = $page->of();
+		$page->of(false);
+
 		$obj = new \stdClass;
 		$fields = $this->getFields($page);
 		$fields = array_merge($fields, (array)$page->template->jsonFields);
@@ -239,6 +242,8 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 				$obj->$field = $value;
 		}
 		
+		$page->of($of);
+
 		return $obj;
 	}
 	
