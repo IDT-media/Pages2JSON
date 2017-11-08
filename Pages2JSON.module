@@ -205,12 +205,15 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		// Handle processwire internals
 		switch($value->className) {
 
+			case 'WireData':				
+				return (object)$value->getArray();
+
 			case 'Pageimage':
 			case 'Pagefile':
 				return array("url" => $value->url, "description" => $value->description);
 		
 			case 'MapMarker':
-				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);
+				return array("lat" => $value->lat, "lng" => $value->lng, "zoom" => $value->zoom, "address" => $value->address);			
 		}	
 	
 		// Handle type of Page
