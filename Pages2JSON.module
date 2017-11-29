@@ -205,8 +205,10 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		// Handle processwire internals
 		switch($value->className) {
 
-			case 'WireData':				
-				return (object)$value->getArray();
+			case 'WireData':		
+				return array_map(function($value) {
+					return $this->getValue($value);
+				}, $value->getArray());
 
 			case 'Pageimage':
 			case 'Pagefile':
@@ -221,7 +223,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			return $this->toPage($value);
 		
 		// Handle type of WireArray
-		if($value instanceof WireArray)
+		if($value instanceof \IteratorAggregate)
 			return $this->toArray($value);
 	
 		// Unknown type :(
@@ -250,7 +252,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 		return $obj;
 	}
 	
-	protected function toArray(WireArray $array)
+	protected function toArray(\IteratorAggregate $array)
 	{
 		$out = array();
 		foreach($array as $item) {
