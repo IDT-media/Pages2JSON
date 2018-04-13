@@ -111,10 +111,9 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	# Methods
 	#---------------------
 	
-	// PHP 5.4 friendly - parameter depth was added in PHP 5.5
-	public function encode($value, $options = 0) 
+	public function encode($value, $options = 0, $depth = 512) 
 	{
-		return json_encode($this->getValue($value), $options);
+		return json_encode($this->getValue($value), $options, $depth);
 	}
 
 	public function process($value)
