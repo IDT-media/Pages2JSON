@@ -116,6 +116,11 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 	{
 		return json_encode($this->getValue($value), $options);
 	}
+
+	public function process($value)
+	{
+		return $this->getValue($value);
+	}
 	
 	#---------------------
 	# Hooks
