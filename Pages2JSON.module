@@ -207,7 +207,7 @@ class Pages2JSON extends WireData implements Module, ConfigurableModule
 			return $value;
 	
 		// Handle processwire internals
-		switch($value->className) {
+		switch(@$value->className) {
 
 			case 'WireData':		
 				return array_map(function($value) {
